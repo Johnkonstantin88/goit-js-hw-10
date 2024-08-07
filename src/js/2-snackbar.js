@@ -12,25 +12,29 @@ function onSubmit(e) {
   } = e.currentTarget;
 
   const stepDelay = Number(delay.value);
-  const stateValue = state.value;
+  const shouldResolve = state.value === 'fulfilled';
 
   if (stepDelay < 0) {
     onError(`❗ Please enter a positive number`);
   } else {
-    setTimeout(() => {
-      if (stateValue === 'fulfilled') {
-        Promise.resolve(stepDelay)
-          .then(delay => onSuccess(`✅ Fulfilled promise in ${delay}ms`))
-          .catch();
-      } else {
-        Promise.reject(stepDelay)
-          .then()
-          .catch(delay => onError(`❌ Rejected promise in ${delay}ms`));
-      }
-    }, stepDelay);
+    createPromise(stepDelay, shouldResolve)
+      .then(delay => onSuccess(`✅ Fulfilled promise in ${delay}ms`))
+      .catch(delay => onError(`❌ Rejected promise in ${delay}ms`));
   }
 
   submitForm.reset();
+}
+
+function createPromise(delay, state) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (state) {
+        resolve(delay);
+      } else {
+        reject(delay);
+      }
+    }, delay);
+  });
 }
 
 function onSuccess(message) {
@@ -48,3 +52,31 @@ function onError(message) {
     position: 'topRight',
   });
 }
+
+// function onSubmit(e) {
+//   e.preventDefault();
+//   const {
+//     elements: { delay, state },
+//   } = e.currentTarget;
+
+//   const stepDelay = Number(delay.value);
+//   const stateValue = state.value;
+
+//   if (stepDelay < 0) {
+//     onError(`❗ Please enter a positive number`);
+//   } else {
+//     setTimeout(() => {
+//       if (stateValue === 'fulfilled') {
+//         Promise.resolve(stepDelay)
+//           .then(delay => onSuccess(`✅ Fulfilled promise in ${delay}ms`))
+//           .catch();
+//       } else {
+//         Promise.reject(stepDelay)
+//           .then()
+//           .catch(delay => onError(`❌ Rejected promise in ${delay}ms`));
+//       }
+//     }, stepDelay);
+//   }
+
+//   submitForm.reset();
+// }
